@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#172554">
+<title>Paduan Lava-Car</title>
+<style>
+:root{--navy:#172554;--blue:#1d4ed8;--green:#16a34a;--bg:#f1f5f9;--text:#172033;--muted:#64748b;--line:#e2e8f0;--white:#fff;--red:#dc2626}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:11px 14px;font-weight:700}
+.primary{background:var(--blue);color:white}.success{background:var(--green);color:white}.secondary{background:#e2e8f0;color:#1e293b}.danger{background:#fee2e2;color:#991b1b}.hidden{display:none!important}
+#loginScreen{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0f172a,#1e40af)}
+.login-card{width:min(420px,100%);background:white;border-radius:20px;padding:28px;box-shadow:0 20px 50px #0004}
+.brand{text-align:center;color:var(--navy);margin-bottom:24px}.brand .car{font-size:42px}.brand h1{font-size:23px;margin:8px 0}.brand p{color:var(--muted);margin:0}
+label{display:block;font-size:13px;font-weight:700;margin:13px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:white;color:var(--text)}
+#loginError,.error{color:var(--red);font-size:13px;margin-top:10px}
+.app{min-height:100vh;display:flex}.sidebar{width:245px;background:var(--navy);color:white;padding:22px 15px;flex-shrink:0}
+.side-brand{padding:4px 10px 25px}.side-brand h2{font-size:18px;margin:7px 0}.side-brand small{color:#bfdbfe}
+.navbtn{width:100%;display:flex;gap:11px;align-items:center;text-align:left;background:transparent;color:#dbeafe;margin:4px 0}
+.navbtn.active,.navbtn:hover{background:#1d4ed8;color:white}.sidebar .logout{margin-top:30px;background:#334155}
+.main{flex:1;min-width:0;padding:26px;max-width:1500px;margin:auto;width:100%}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.topbar h1{margin:0;font-size:25px}.muted{color:var(--muted)}.small{font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.stat,.card,.service-card{background:white;border:1px solid var(--line);border-radius:14px;padding:17px}
+.stat strong{display:block;font-size:25px;margin-top:7px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:15px 0}
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.service-card{cursor:pointer;transition:.15s}.service-card:hover{border-color:#93c5fd;transform:translateY(-2px)}
+.pill{display:inline-block;border-radius:30px;padding:5px 9px;background:#dcfce7;color:#166534;font-size:11px;font-weight:700}
+.service-card h3{margin:12px 0 5px}.service-card p{margin:5px 0;color:var(--muted);font-size:13px}
+.empty{padding:35px;text-align:center;color:var(--muted);background:white;border:1px dashed #cbd5e1;border-radius:14px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.full{grid-column:1/-1}
+.item-row{display:grid;grid-template-columns:1fr 110px 38px;gap:8px;align-items:center;margin:8px 0}
+.table-wrap{overflow:auto;background:white;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;min-width:600px}th,td{padding:12px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}th{background:#f8fafc}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.section{display:none}.section.active{display:block}
+.modal-backdrop{position:fixed;inset:0;background:#0f172a99;display:grid;place-items:center;padding:15px;z-index:5}
+.modal{background:white;border-radius:16px;width:min(680px,100%);max-height:90vh;overflow:auto;padding:22px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal-head h2{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:17px 0}
+@media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:12px;display:flex;align-items:center;gap:5px;overflow-x:auto}.side-brand{display:none}.navbtn{width:auto;white-space:nowrap;font-size:12px;padding:10px}.sidebar .logout{margin:0;white-space:nowrap}.main{padding:16px}.stats{grid-template-columns:1fr 1fr}.topbar h1{font-size:20px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media(max-width:420px){.stats{grid-template-columns:1fr}.service-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="brand"><div class="car">🚗</div><h1>PADUAN LAVA-CAR</h1><p>Sistema de Gestão</p></div>
+    <form id="loginForm">
+      <label for="username">Usuário</label><input id="username" autocomplete="username" placeholder="Paduan" required>
+      <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+      <button class="primary" style="width:100%;margin-top:20px">ENTRAR NO SISTEMA</button>
+      <div id="loginError"></div>
+    </form>
+    <p class="small muted" style="text-align:center;margin-top:20px">Acesso exclusivo do administrador</p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="side-brand"><div style="font-size:28px">🚗</div><h2>PADUAN LAVA-CAR</h2><small>Sistema de Gestão</small></div>
+    <button class="navbtn active" data-page="dashboard">▦ Painel</button>
+    <button class="navbtn" data-page="history">◷ Histórico diário</button>
+    <button class="navbtn" data-page="reports">▥ Relatório mensal</button>
+    <button class="navbtn" data-page="settings">⚙ Configurações</button>
+    <button class="navbtn logout" id="logoutBtn">↪ Sair</button>
+  </aside>
+  <main class="main">
+    <section id="dashboard" class="section active">
+      <div class="topbar"><div><h1>Painel de serviços</h1><div class="muted small">Acompanhe os veículos em atendimento</div></div><button class="primary" id="openServiceBtn">＋ Abrir serviço</button></div>
+      <div class="stats"><div class="stat"><span class="muted small">Em andamento</span><strong id="activeCount">0</strong></div><div class="stat"><span class="muted small">Finalizados hoje</span><strong id="todayCount">0</strong></div><div class="stat"><span class="muted small">Faturamento hoje</span><strong id="todayRevenue">R$ 0,00</strong></div></div>
+      <div id="activeServices" class="service-grid"></div>
+    </section>
+    <section id="history" class="section">
+      <div class="topbar"><div><h1>Histórico diário</h1><div class="muted small">Consulte os atendimentos por data</div></div></div>
+      <div class="toolbar"><div><label>Data</label><input type="date" id="historyDate"></div><div><button class="primary" id="searchHistory">Consultar data</button></div></div>
+      <div id="historySummary" class="stat" style="margin-bottom:14px">Total do dia: <strong>R$ 0,00</strong></div><div id="historyList"></div>
+    </section>
+    <section id="reports" class="section">
+      <div class="topbar"><div><h1>Relatório mensal</h1><div class="muted small">Resumo do faturamento por mês</div></div></div>
+      <div class="toolbar"><div><label>Mês</label><input type="month" id="reportMonth"></div><button class="primary" id="searchReport">Gerar relatório</button></div>
+      <div class="stats"><div class="stat"><span class="muted small">Faturamento</span><strong id="monthRevenue">R$ 0,00</strong></div><div class="stat"><span class="muted small">Veículos atendidos</span><strong id="monthCount">0</strong></div><div class="stat"><span class="muted small">Ticket médio</span><strong id="monthAverage">R$ 0,00</strong></div></div>
+      <div class="card"><h3>Formas de pagamento</h3><div id="paymentBreakdown" class="muted">Nenhum atendimento no período.</div></div>
+    </section>
+    <section id="settings" class="section">
+      <div class="topbar"><div><h1>Configurações</h1><div class="muted small">Gerencie categorias e serviços oferecidos</div></div></div>
+      <div class="card">
+        <h3>Categorias</h3><div class="toolbar"><input id="newCategory" placeholder="Nome da categoria"><button class="primary" id="addCategory">Adicionar categoria</button></div><div id="categoryList"></div>
+      </div>
+      <div class="card" style="margin-top:15px">
+        <h3>Serviços e preços</h3><div class="form-grid"><div><label>Categoria</label><select id="serviceCategory"></select></div><div><label>Nome do serviço</label><input id="serviceName" placeholder="Ex.: Lavagem completa"></div><div><label>Preço (R$)</label><input id="servicePrice" type="number" min="0" step="0.01" placeholder="100.00"></div><div style="align-self:end"><button class="primary" id="addCatalogService" style="width:100%">Adicionar serviço</button></div></div><hr><div id="catalogList"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modalHost"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script>
+/* CONFIGURAÇÃO DO FIREBASE - Projeto Paduan Lava-Car */
+const firebaseConfig = {
+  apiKey: "AIzaSyAH_YSciCGK9Kj7sloNHPfF5GO8uyIPVD0",
+  authDomain: "paduan-lava-car.firebaseapp.com",
+  databaseURL: "https://paduan-lava-car-default-rtdb.firebaseio.com",
+  projectId: "paduan-lava-car",
+  storageBucket: "paduan-lava-car.firebasestorage.app",
+  messagingSenderId: "844635957554",
+  appId: "1:844635957554:web:ef9d9ea35ed2c9fed68f2b"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const ADMIN_UID = "dhULcQWWTEe9ZwZf8dOkcFlYIRi1";
+const LOGIN_EMAIL = "Brunopaduanoficial@gmail.com";
+const $ = id => document.getElementById(id);
+const money = n => (Number(n)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const today = () => {const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let data={active:{},history:{},categories:{},catalog:{}};
+let refs={};
+function showError(msg){$("loginError").textContent=msg}
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();showError("");
+ const user=$("username").value.trim().toLowerCase(), pass=$("password").value;
+ if(user!=="paduan"){showError("Usuário ou senha inválidos.");return}
+ try{await auth.signInWithEmailAndPassword(LOGIN_EMAIL,pass)}catch(err){showError("Não foi possível entrar. Confira a senha e tente novamente.")}
+});
+$("logoutBtn").onclick=()=>auth.signOut();
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    $("app").classList.add("hidden");
+    $("loginScreen").classList.remove("hidden");
+    return;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+    showError("A conta foi autenticada, mas o UID não corresponde ao administrador cadastrado.");
+    console.log("UID autenticado:", user.uid);
+    console.log("UID esperado:", ADMIN_UID);
+    auth.signOut();
+    return;
+  }
+
+  $("loginScreen").classList.add("hidden");
+  $("app").classList.remove("hidden");
+
+  try {
+    startData();
+  } catch (error) {
+    showError("Erro ao abrir o sistema: " + error.message);
+    console.error(error);
+  }
+});
+
+function startData(){
+ ["active","history","categories","catalog"].forEach(key=>{
+  if(refs[key])refs[key].off();
+  refs[key]=db.ref(key);
+  refs[key].on("value",snap=>{data[key]=snap.val()||{};renderAll()},err=>alert("Erro ao carregar "+key+": "+err.message));
+ });
+}
+function renderAll(){renderDashboard();renderHistory();renderReports();renderSettings()}
+function go(page){document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===page));document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page))}
+document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.onclick=()=>go(b.dataset.page));
+function list(obj){return Object.entries(obj||{}).map(([id,v])=>({...v,id}))}
+function renderDashboard(){
+ const active=list(data.active), done=list(data.history).filter(x=>x.date===today());
+ $("activeCount").textContent=active.length;$("todayCount").textContent=done.length;
+ $("todayRevenue").textContent=money(done.reduce((s,x)=>s+Number(x.total||0),0));
+ $("activeServices").innerHTML=active.length?active.map(x=>`<div class="service-card" data-id="${esc(x.id)}"><span class="pill">EM ANDAMENTO</span><h3>${esc(x.customer)}</h3><p><b>${esc(x.vehicle)}</b> • ${esc(x.plate||"Sem placa")}</p><p>${esc((x.items||[]).map(i=>i.name).join(", "))}</p><p><b>${money(x.total)}</b></p></div>`).join(""):`<div class="empty">Nenhum serviço em andamento.<br>Use “Abrir serviço” para começar.</div>`;
+ document.querySelectorAll(".service-card").forEach(el=>el.onclick=()=>openDetails(el.dataset.id));
+}
+function openModal(html){$("modalHost").innerHTML=`<div class="modal-backdrop" id="backdrop"><div class="modal">${html}</div></div>`;$("backdrop").onclick=e=>{if(e.target.id==="backdrop")closeModal()}}
+function closeModal(){$("modalHost").innerHTML=""}
+function openNewService(){
+ const opts=list(data.catalog).filter(s=>s.enabled!==false).map(s=>`<option value="${esc(s.id)}">${esc(s.name)} — ${money(s.price)}</option>`).join("");
+ openModal(`<div class="modal-head"><h2>Abrir serviço</h2><button class="secondary" onclick="closeModal()">✕</button></div>
+ <div class="form-grid"><div><label>Nome do cliente *</label><input id="mCustomer" placeholder="Nome do cliente"></div><div><label>Veículo *</label><input id="mVehicle" placeholder="Ex.: Honda Civic"></div><div><label>Placa</label><input id="mPlate" placeholder="ABC-1234"></div><div><label>Horário de entrada</label><input id="mTime" type="time" value="${new Date().toTimeString().slice(0,5)}"></div></div>
+ <hr><h3>Adicionar serviços</h3><div id="chosenItems"></div><div class="toolbar"><select id="chooseCatalog">${opts}</select><button class="secondary" id="addChosen">Adicionar</button></div><div class="stat">Total: <strong id="newTotal">R$ 0,00</strong></div>
+ <button class="success" style="width:100%;margin-top:15px" id="saveNewService">Abrir atendimento</button><div id="modalError" class="error"></div>`);
+ let chosen=[];
+ const redraw=()=>{$("chosenItems").innerHTML=chosen.map((x,i)=>`<div class="item-row"><span>${esc(x.name)}</span><b>${money(x.price)}</b><button class="danger" data-remove="${i}">×</button></div>`).join("")||'<p class="muted small">Nenhum serviço adicionado.</p>';$("newTotal").textContent=money(chosen.reduce((s,x)=>s+x.price,0));document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{chosen.splice(Number(b.dataset.remove),1);redraw()})};
+ $("addChosen").onclick=()=>{const id=$("chooseCatalog").value,s=data.catalog[id];if(s){chosen.push({catalogId:id,name:s.name,price:Number(s.price)||0,category:s.category||""});redraw()}};
+ $("saveNewService").onclick=async()=>{const customer=$("mCustomer").value.trim(),vehicle=$("mVehicle").value.trim();if(!customer||!vehicle||!chosen.length){$("modalError").textContent="Informe cliente, veículo e pelo menos um serviço.";return}
+ try{await db.ref("active").push({customer,vehicle,plate:$("mPlate").value.trim().toUpperCase(),time:$("mTime").value,date:today(),items:chosen,total:chosen.reduce((s,x)=>s+x.price,0),createdAt:Date.now()});closeModal()}catch(e){$("modalError").textContent="Erro ao salvar: "+e.message}}
+ redraw();
+}
+$("openServiceBtn").onclick=openNewService;
+function openDetails(id){
+ const x=data.active[id];if(!x)return;
+ openModal(`<div class="modal-head"><h2>Detalhes do serviço</h2><button class="secondary" onclick="closeModal()">✕</button></div>
+ <h3>${esc(x.customer)}</h3><p>${esc(x.vehicle)} • ${esc(x.plate||"Sem placa")}</p><p class="muted small">Entrada: ${esc(x.date||"")} ${esc(x.time||"")}</p><hr>
+ ${x.items.map(i=>`<p>${esc(i.name)} <b style="float:right">${money(i.price)}</b></p>`).join("")}
+ <hr><h2>Total: ${money(x.total)}</h2><label>Forma de pagamento</label><select id="payment"><option value="">Selecione...</option><option>Pix</option><option>Crédito</option><option>Débito</option><option>Dinheiro</option></select>
+ <button class="success" id="finishService" style="width:100%;margin-top:15px">Finalizar serviço</button><div id="modalError" class="error"></div>`);
+ $("finishService").onclick=async()=>{const payment=$("payment").value;if(!payment){$("modalError").textContent="Selecione a forma de pagamento.";return}
+ try{const finished={...x,payment,finishedAt:Date.now(),date:today()};const updates={};updates["history/"+id]=finished;updates["active/"+id]=null;await db.ref().update(updates);closeModal()}catch(e){$("modalError").textContent="Erro ao finalizar: "+e.message}}
+}
+function renderHistory(){
+ const date=$("historyDate").value||today(), rows=list(data.history).filter(x=>x.date===date);
+ $("historySummary").innerHTML=`Total de ${esc(date)}: <strong>${money(rows.reduce((s,x)=>s+Number(x.total||0),0))}</strong>`;
+ $("historyList").innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Veículo</th><th>Serviços</th><th>Pagamento</th><th>Valor</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.customer)}</td><td>${esc(x.vehicle)}</td><td>${esc((x.items||[]).map(i=>i.name).join(", "))}</td><td>${esc(x.payment)}</td><td>${money(x.total)}</td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">Nenhum serviço encontrado nessa data.</div>';
+}
+$("historyDate").value=today();$("searchHistory").onclick=renderHistory;
+function renderReports(){
+ const month=$("reportMonth").value||today().slice(0,7), rows=list(data.history).filter(x=>(x.date||"").slice(0,7)===month), total=rows.reduce((s,x)=>s+Number(x.total||0),0);
+ $("monthRevenue").textContent=money(total);$("monthCount").textContent=rows.length;$("monthAverage").textContent=money(rows.length?total/rows.length:0);
+ const sums={};rows.forEach(x=>sums[x.payment||"Não informado"]=(sums[x.payment||"Não informado"]||0)+Number(x.total||0));
+ $("paymentBreakdown").innerHTML=Object.keys(sums).length?Object.entries(sums).map(([k,v])=>`<p>${esc(k)} <b style="float:right">${money(v)}</b></p>`).join(""):"Nenhum atendimento no período.";
+}
+$("reportMonth").value=today().slice(0,7);$("searchReport").onclick=renderReports;
+function renderSettings(){
+ const cats=list(data.categories);$("categoryList").innerHTML=cats.length?cats.map(c=>`<span class="pill" style="margin:4px">${esc(c.name)}</span>`).join(""):'<p class="muted small">Nenhuma categoria cadastrada.</p>';
+ $("serviceCategory").innerHTML=cats.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+ const services=list(data.catalog);$("catalogList").innerHTML=services.length?services.map(s=>`<div class="item-row"><span><b>${esc(s.name)}</b><br><small class="muted">${esc((data.categories[s.category]||{}).name||"Sem categoria")}</small></span><b>${money(s.price)}</b><span class="actions"><button class="secondary" data-edit="${esc(s.id)}">✎</button><button class="danger" data-del="${esc(s.id)}">×</button></span></div>`).join(""):'<p class="muted small">Nenhum serviço cadastrado.</p>';
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editCatalog(b.dataset.edit));
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(confirm("Excluir este serviço do catálogo?"))await db.ref("catalog/"+b.dataset.del).remove()});
+}
+$("addCategory").onclick=async()=>{const name=$("newCategory").value.trim();if(!name)return alert("Digite o nome da categoria.");await db.ref("categories").push({name});$("newCategory").value=""};
+$("addCatalogService").onclick=async()=>{const name=$("serviceName").value.trim(),category=$("serviceCategory").value,price=Number($("servicePrice").value);if(!name||!category||!Number.isFinite(price)||price<0)return alert("Preencha nome, categoria e preço corretamente.");await db.ref("catalog").push({name,category,price,enabled:true});$("serviceName").value="";$("servicePrice").value=""};
+async function editCatalog(id){const s=data.catalog[id];if(!s)return;const name=prompt("Nome do serviço:",s.name);if(name===null)return;const price=prompt("Preço (R$):",s.price);if(price===null)return;const n=Number(price);if(!name.trim()||!Number.isFinite(n)||n<0)return alert("Dados inválidos.");await db.ref("catalog/"+id).update({name:name.trim(),price:n})}
+</script>
+</body>
+</html>
